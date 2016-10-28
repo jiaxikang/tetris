@@ -82,6 +82,8 @@ class playTetris(object):
 		self.gameover = False
 		self.paused = False
 		self.gameDisplay = pygame.display.set_mode((self.width, self.height))
+
+		#pygame.event.set_blocked(pygame.MOUSEMOTION)
 		
 		pygame.display.set_caption("Tetris by Josh")
 		self.board = new_board()
@@ -113,7 +115,15 @@ class playTetris(object):
 		for y in range(len(matrix)):
 			for x in range(len(matrix[0])):
 				if matrix[y][x] != 0:
-					pygame.draw.rect(self.gameDisplay, colors[matrix[y][x]], (((x + coord[1]) *cell_size, (y + coord[0])*cell_size, cell_size, cell_size)))
+					pygame.draw.rect(self.gameDisplay, colors[matrix[y][x]], (((x + coord[1]) *cell_size, (y + coord[0])*cell_size, cell_size, cell_size,)))
+					pygame.draw.rect(self.gameDisplay, white, (((x + coord[1]) *cell_size, (y + coord[0])*cell_size, cell_size, cell_size)), 1)
+
+	def draw_background(self):
+		pygame.draw.rect(self.gameDisplay, black, (0, 0, cell_size*cols, cell_size*rows))
+		for y in range(rows):
+			for x in range(cols):
+				pygame.draw.rect(self.gameDisplay, white, (x*cell_size, y*cell_size, cell_size, cell_size), 1)
+
 
 	def move(self, x):
 		if not self.gameover and not self.paused:
@@ -125,7 +135,6 @@ class playTetris(object):
 	def drop(self, manual):
 		if not self.gameover and not self.paused:
 			self.y_coord += 1
-
 			if collision(self.board, self.piece, (self.y_coord, self.x_coord)):
 				join_matrixes(self.board, self.piece, (self.y_coord, self.x_coord))
 				self.new_piece()
@@ -160,36 +169,39 @@ class playTetris(object):
 		}
 
 		self.init_game()
-
+		clock = pygame.time.Clock()
+		pygame.key.set_repeat(250, 10)
 		while 1:
 			if self.gameover:
 				pygame.quit()
 				quit()
 
 			self.gameDisplay.fill(white)
+			self.draw_background()
 			self.draw_matrix(self.board, (0,0))
 
 			self.draw_matrix(self.piece, (self.y_coord, self.x_coord))
 			
 			
 			
-			clock = pygame.time.Clock()
+			
 			
 			pygame.display.update()
 			for event in pygame.event.get():
 				if event.type == pygame.USEREVENT:
 					self.drop(False)
 
-				if event.type == pygame.QUIT:
+				elif event.type == pygame.QUIT:
 					pygame.quit()
 					quit()
 
-				if event.type == pygame.KEYDOWN:
+				elif event.type == pygame.KEYDOWN:
 					for key in key_actions:
 						if event.key == eval("pygame.K_" + key):
 							key_actions[key]()
 
 			clock.tick(fps)
+
 if __name__ == '__main__':
 	Tetris = playTetris()
 	Tetris.run()
