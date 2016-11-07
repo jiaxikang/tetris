@@ -19,6 +19,7 @@ colors = {0: (0, 0, 0),
 white = (255, 255, 255)
 black = (0, 0, 0)
 
+#defines all possible tetris shapes using 2D lists
 tetris_shapes = [
 	[[1, 1, 1],
 	 [0, 1, 0]],
@@ -48,7 +49,12 @@ def new_board():
 	board += [[1 for x in range(cols)]]
 	return board
 
+
+
 def join_matrixes(mat1, mat2, mat2_off):
+	# This function will combine two 2-D lists together, it is needed in combining the board matrix
+	# and the tetris piece matrix
+
 	off_y, off_x = mat2_off
 	for cy, row in enumerate(mat2):
 		for cx, val in enumerate(row):
@@ -60,8 +66,10 @@ def remove_row(board, row):
 	return [[0 for i in range(cols)]] + board
 
 def collision(board, shape, coord):
-	#coord is an tuple of size 2 that will represent the shapes' position on the board
-	#coord[0] is y position and coord[1] is x position
+# This function will return True if a shape is colliding with a wall or anothe piece. 
+# 	coord is an tuple of size 2 that will represent the shapes' position on the board
+# 	coord[0] is y position and coord[1] is x position
+
 	y_add = coord[0]
 	x_add = coord[1]
 
@@ -107,14 +115,11 @@ class playTetris(object):
 
 		self.x_coord = int(cols/2 - len(self.piece[0])/2)
 		self.y_coord = 0
-		print self.x_coord
-		print self.y_coord
-		if collision(self.board, self.piece, (self.y_coord, self.x_coord)):
+
+		if collision(self.board, self.piece, (self.y_coord, self.x_coord)): #collision with upper wall
 			self.gameover = True
 
 	def draw_matrix(self, matrix, coord, ghost = 0):
-	# draws a grid representation of a matrix
-	# will be used for the draw tetrimino shapes and the board itself
 		y_add = coord[0]
 		x_add = coord[1]
 		for y in range(len(matrix)):
@@ -126,12 +131,12 @@ class playTetris(object):
 					else:
 						pygame.draw.rect(self.gameDisplay, (40, 40, 40), (((x + coord[1]) *cell_size, (y + coord[0])*cell_size, cell_size, cell_size,)))
 						pygame.draw.rect(self.gameDisplay, colors[matrix[y][x]], (((x + coord[1]) *cell_size, (y + coord[0])*cell_size, cell_size, cell_size,)), 3)
+
 	def draw_background(self):
 		pygame.draw.rect(self.gameDisplay, black, (0, 0, cell_size*cols, cell_size*rows))
 		for y in range(rows):
 			for x in range(cols):
 				pygame.draw.rect(self.gameDisplay, white, (x*cell_size, y*cell_size, cell_size, cell_size), 1)
-
 
 	def move(self, x):
 		if not self.gameover and not self.paused:
@@ -145,7 +150,6 @@ class playTetris(object):
 			while not self.drop(True):
 				pass
 				
-				
 	def ghost(self):
 		y_end = self.y_coord
 
@@ -155,6 +159,9 @@ class playTetris(object):
 		self.draw_matrix(self.piece, (y_end - 1, self.x_coord), 1)
 
 	def drop(self, manual):
+	# Allows for the current tetris piece to fall. Will return 1 when it is as low as it can be, and 0
+	# 	otherwise
+
 		if not self.gameover and not self.paused:
 			self.y_coord += 1
 			
@@ -176,15 +183,12 @@ class playTetris(object):
 					else:
 						break
 
-				if self.lines > self.level * 6:
+				if self.lines > self.level * 6: #changes the speed of falling as the level increases
 					self.level += 1
 					pygame.time.set_timer(pygame.USEREVENT, 1000 - (self.level - 1) * 100)
 
-				return 1
+				return 1 
 		return 0
-
-
-
 
 	def message(self, msg, location, size):
 		myfont = pygame.font.Font(None, size)
@@ -232,8 +236,6 @@ class playTetris(object):
 		self.message("Press 'y' or 'n'", (self.width/2, self.height/2 + 120), 50)
 
 
-
-
 	def run(self):
 
 		key_actions = {
@@ -248,10 +250,8 @@ class playTetris(object):
 		self.init_game()
 		clock = pygame.time.Clock()
 		pygame.key.set_repeat(250, 10)
-		while 1:
-			
 
-			
+		while 1:
 			self.gameDisplay.fill(white)
 			self.labels()
 			self.draw_background()
@@ -266,8 +266,8 @@ class playTetris(object):
 			if self.paused:
 				self.paused_screen()
 			
-			
 			pygame.display.update()
+
 			for event in pygame.event.get():
 				if event.type == pygame.USEREVENT:
 					self.drop(False)
